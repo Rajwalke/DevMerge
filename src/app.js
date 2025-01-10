@@ -1,6 +1,43 @@
 const express=require("express");
 
 const app=express();
+
+
+
+app.use("/user",[(req,res,next)=>{
+    console.log("1st Route handler")
+    next();
+    //  res.send("Im user");
+},
+(req,res,next)=>{
+    console.log("2nd Route Handler");
+    // res.send("Im in second router function");
+    next();
+},
+],
+[
+(req,res,next)=>{
+    console.log("3rd Route Handler");
+    // res.send("Im in Third router function");
+    next();
+},
+],
+(req,res,next)=>{
+    console.log("4th Route Handler");
+    res.send("Im in Fourth router function");
+}
+
+
+)
+
+
+app.listen(7777,()=>{
+    console.log("NodeJS Server is Running");
+});
+
+
+
+
 // app.use("/test",(req,res)=>{
 //     res.send("Im in use case why???")
 // })
@@ -25,10 +62,10 @@ const app=express();
 //     res.send({firstname:"Raj",lastName:"Walke"});
 // })
 
-app.get("/user/:userId/:userName/:pass",(req,res)=>{
-    res.send(req.params);
-}
-);
+// app.get("/user/:userId/:userName/:pass",(req,res)=>{
+//     res.send(req.params);
+// }
+// );
 
 // app.post("/test",(req,res)=>{
 //     res.send("It is Postr methode for testing")
@@ -47,12 +84,6 @@ app.get("/user/:userId/:userName/:pass",(req,res)=>{
 // app.use("/about",(req,res)=>{
 //     res.send("Its is my about page")
 // })
-app.get("/",(req,res)=>{
-    res.send("Hello Namste Everyone");
-})
-
-
-
-app.listen(7777,()=>{
-    console.log("NodeJS Server is Running");
-});
+// app.get("/",(req,res)=>{
+//     res.send("Hello Namste Everyone");
+// })
