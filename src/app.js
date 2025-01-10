@@ -1,34 +1,28 @@
 const express=require("express");
-
+const {authorized}=require("./middlewere/authorized")
 const app=express();
 
+app.use("/admin",authorized);
 
-
-app.use("/user",[(req,res,next)=>{
-    console.log("1st Route handler")
-    next();
-    //  res.send("Im user");
-},
-(req,res,next)=>{
-    console.log("2nd Route Handler");
-    // res.send("Im in second router function");
-    next();
-},
-],
-[
-(req,res,next)=>{
-    console.log("3rd Route Handler");
-    // res.send("Im in Third router function");
-    next();
-},
-],
-(req,res,next)=>{
-    console.log("4th Route Handler");
-    res.send("Im in Fourth router function");
-}
-
-
+app.use("/admin/id",(req,res)=>{
+    console.log("This is from authorized");
+        res.send("Hello Im admin and I'm Authorized");
+    }
 )
+app.use("/admin/delete",(req,res)=>{
+    res.send("Admin Delete the data");
+}
+)
+
+
+
+
+
+
+app.use("/user",(req,res,next)=>{
+    console.log("1st Route handler")
+     res.send("Im user");
+})
 
 
 app.listen(7777,()=>{
