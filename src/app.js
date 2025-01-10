@@ -15,8 +15,25 @@ app.use("/admin/delete",(req,res)=>{
 )
 
 
+// Error Handling
 
+app.use("/test",(req,res)=>{
+    try {
+        console.log("Error");
+        throw new Error("New Erro is here");
+    } catch (error){
+        console.log("inside catch")
+        res.status(500).send("try catch error");
+    }
 
+    // res.send("No error");
+
+})
+app.use("/",(err,req,res,next)=>{
+    if(err){
+        res.status(500).send("Please Fixed the error");
+    }
+})
 
 
 app.use("/user",(req,res,next)=>{
