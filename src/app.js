@@ -1,54 +1,73 @@
 const express=require("express");
 const {authorized}=require("./middlewere/authorized")
 const app=express();
-
-app.use("/admin",authorized);
-
-app.use("/admin/id",(req,res)=>{
-    console.log("This is from authorized");
-        res.send("Hello Im admin and I'm Authorized");
-    }
-)
-app.use("/admin/delete",(req,res)=>{
-    res.send("Admin Delete the data");
-}
-)
-
-
-// Error Handling
-// Using try catch
-
-app.use("/test",(req,res)=>{
-    try {
-        console.log("Error");
-        throw new Error("New Erro is here");
-    } catch (error){
-        console.log("inside catch")
-        res.status(500).send("try catch error");
-    }
-
-    // res.send("No error");
-
+const {connectDB}=require("./config/database");
+app.get("/",(req,res)=>{
+    res.send("Server is created")
 })
-
-// Using wild card error handling
-app.use("/",(err,req,res,next)=>{
-    if(err){
-        res.status(500).send("Please Fixed the error");
-    }
+connectDB().then(()=>{
+    console.log("Database is comnnected ");
+    app.listen(7777,()=>{
+        console.log("NodeJs server is running ");
+        
+    })
 })
-
-
-app.use("/user",(req,res,next)=>{
-    console.log("1st Route handler")
-     res.send("Im user");
+.catch((e)=>{
+    console.log("Error is there , db is not connect ",e)
 })
+// app.listen(7777,()=>{
+//     console.log("NodeJS Server is Running");
+// });
 
 
-app.listen(7777,()=>{
-    console.log("NodeJS Server is Running");
-});
+// // middleware and error handling
+// app.use("/admin",authorized);
 
+// app.use("/admin/id",(req,res)=>{
+//     console.log("This is from authorized");
+//         res.send("Hello Im admin and I'm Authorized");
+//     }
+// )
+// app.use("/admin/delete",(req,res)=>{
+//     res.send("Admin Delete the data");
+// }
+// )
+
+
+// // Error Handling
+// // Using try catch
+
+// app.use("/test",(req,res)=>{
+//     try {
+//         console.log("Error");
+//         throw new Error("New Erro is here");
+//     } catch (error){
+//         console.log("inside catch")
+//         res.status(500).send("try catch error");
+//     }
+
+//     // res.send("No error");
+
+// })
+
+// // Using wild card error handling
+// app.use("/",(err,req,res,next)=>{
+//     if(err){
+//         res.status(500).send("Please Fixed the error");
+//     }
+// })
+
+
+// app.use("/user",(req,res,next)=>{
+//     console.log("1st Route handler")
+//      res.send("Im user");
+// })
+
+
+
+
+
+// "------------------------------------------------"
 
 
 
