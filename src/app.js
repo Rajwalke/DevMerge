@@ -1,23 +1,73 @@
 const express=require("express");
-const {authorized}=require("./middlewere/authorized")
 const app=express();
-const {connectDB}=require("./config/database");
+const {connectDB}=require("./config/databse");
+
+const {UserInfo}=require("./models/user")
+
 app.get("/",(req,res)=>{
-    res.send("Server is created")
+    res.send("This is My First Page");
 })
+
+app.post("/signup",async (req,res)=>{
+    const userData={
+        firstName:"Prashant",
+        lastName:"swant",
+        password:"prashant@2004"
+    }
+    const user=new UserInfo(userData);
+    try{
+        await user.save();
+        res.send("userInfo Is added");
+    }catch(error){
+        res.status(400).send("Something is wrong so d=userDtaa is not added")
+    }
+    
+})
+
 connectDB().then(()=>{
-    console.log("Database is comnnected ");
+    console.log("database is created")
     app.listen(7777,()=>{
-        console.log("NodeJs server is running ");
-        
+        console.log("server is created")
     })
+}).catch((Error)=>{
+    console.log("dtaabase is not connected so server is not created");
 })
-.catch((e)=>{
-    console.log("Error is there , db is not connect ",e)
-})
-// app.listen(7777,()=>{
-//     console.log("NodeJS Server is Running");
-// });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const express=require("express");
+// const {authorized}=require("./middlewere/authorized")
+// const app=express();
+// const {connectDB}=require("./config/database");
+// app.get("/",(req,res)=>{
+//     res.send("Server is created")
+// })
+
+// connectDB().then(()=>{
+//     console.log("Database is comnnected ");
+//     app.listen(7777,()=>{
+//         console.log("NodeJs server is running ");
+        
+//     })
+// })
+// .catch((e)=>{
+//     console.log("Error is there , db is not connect ",e)
+// })
+
 
 
 // // middleware and error handling
