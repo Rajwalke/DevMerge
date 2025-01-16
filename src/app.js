@@ -7,14 +7,17 @@ const {UserInfo}=require("./models/user")
 app.get("/",(req,res)=>{
     res.send("This is My First Page");
 })
+app.use(express.json());
 
 app.post("/signup",async (req,res)=>{
-    const userData={
-        firstName:"Prashant",
-        lastName:"swant",
-        password:"prashant@2004"
-    }
-    const user=new UserInfo(userData);
+
+    console.log(req.body);
+    // const userData={
+    //     firstName:"SaiPangle",
+    //     lastName:"swant",
+    //     password:"SaiPangle@2004"
+    // }
+    const user=new UserInfo(req.body);
     try{
         await user.save();
         res.send("userInfo Is added");
@@ -30,7 +33,7 @@ connectDB().then(()=>{
         console.log("server is created")
     })
 }).catch((Error)=>{
-    console.log("dtaabase is not connected so server is not created");
+    console.log("dtaabase is not connected so server is not created",Error);
 })
 
 
