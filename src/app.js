@@ -8,10 +8,10 @@ app.get("/",(req,res)=>{
     res.send("This is My First Page");
 })
 app.use(express.json());
-
+// signup the userapi
 app.post("/signup",async (req,res)=>{
 
-    console.log(req.body);
+    // console.log(req.body);
     // const userData={
     //     firstName:"SaiPangle",
     //     lastName:"swant",
@@ -26,6 +26,29 @@ app.post("/signup",async (req,res)=>{
     }
     
 })
+// feedapi
+app.get("/feed",async(req,res)=>{
+    try{
+        const allUsers=await UserInfo.find({});
+        console.log("Type of all users",typeof(allUsers))
+        res.send(allUsers) ;
+    }catch(err){
+        res.status(404).send("Something went wrong");
+    }
+})
+
+
+app.get("/user",async(req,res)=>{
+    const firstNameOfUser=req.body.firstName;
+    try{
+        const allUser = await UserInfo.findOne({firstName:firstNameOfUser});
+        res.send(allUser); 
+    }catch(err){
+        res.status(404).send("User not found");
+    }
+  
+})
+
 
 connectDB().then(()=>{
     console.log("database is created")
