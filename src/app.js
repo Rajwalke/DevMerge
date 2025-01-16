@@ -36,7 +36,45 @@ app.get("/feed",async(req,res)=>{
         res.status(404).send("Something went wrong");
     }
 })
+app.delete("/delete",async(req,res)=>{
+    // const userFirstName=req.body.firstName;
+    // const userLastName=req.body.lastName;
+    const userId=req.body._id;
+   try{
+    // const del=await UserInfo.deleteOne({firstName:userFirstName});
+    // const del=await UserInfo.deleteMany({firstName:userFirstName});
+    // const del= await UserInfo.findOneAndDelete({firstName:userFirstName});
+    // const del=await UserInfo.findByIdAndDelete({_id:userId});
+    const del=await UserInfo.findByIdAndDelete(userId);
+    res.send(del);
+    
+   }catch(err){
+    res.status(404).send("Somethiong went wrong on in delete operation");
+   }
+})
 
+// app.patch("/user",async(req,res)=>{
+//     const userId=req.body._id;
+//     const data=req.body
+//     try{
+//         const userInfoupdate=await UserInfo.findByIdAndUpdate(userId,data,{returnDocument:"before"});
+//         res.send(userInfoupdate);
+//     }catch(err){
+//         res.status(404).send("Something went wrong");
+//     }
+
+// })
+
+app.patch("/user",async(req,res)=>{
+    const userLastName=req.body.lastName;
+    const data=req.body;
+    try {
+    const updatedUser=await UserInfo.updateOne({lastName:userLastName},data );
+    res.send(updatedUser);
+    } catch (error) {
+        res.status(404).send("somiting went wrong inupdate");
+    }
+})
 
 app.get("/user",async(req,res)=>{
     const firstNameOfUser=req.body.firstName;
