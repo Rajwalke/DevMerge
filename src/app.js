@@ -4,27 +4,35 @@ const {connectDB}=require("./config/databse");
 
 const {UserInfo}=require("./models/user")
 
+// const checkEmailIsvalide=(email)=>{
+//     const isemailvalid=/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
+//     if(!isemailvalid) return false;
+
+//     return true;
+// }
+
 app.get("/",(req,res)=>{
     res.send("This is My First Page");
 })
+
 app.use(express.json());
 // signup the userapi
 app.post("/signup",async (req,res)=>{
 
-    // console.log(req.body);
     // const userData={
     //     firstName:"SaiPangle",
     //     lastName:"swant",
     //     password:"SaiPangle@2004"
     // }
     const user=new UserInfo(req.body);
-    try{
-        await user.save();
-        res.send("userInfo Is added");
-    }catch(error){
-        res.status(400).send("Something is wrong so d=userDtaa is not added")
-    }
+        try{
+            await user.save();
+            res.send("userInfo Is added");
+        }catch(error){
+            res.status(400).send("Data is not addes" + error.message)
+        }
     
+
 })
 // feedapi
 app.get("/feed",async(req,res)=>{
@@ -37,17 +45,16 @@ app.get("/feed",async(req,res)=>{
     }
 })
 app.delete("/delete",async(req,res)=>{
-    // const userFirstName=req.body.firstName;
+    const userFirstName=req.body.firstName;
     // const userLastName=req.body.lastName;
-    const userId=req.body._id;
+    // const userId=req.body._id;
    try{
     // const del=await UserInfo.deleteOne({firstName:userFirstName});
-    // const del=await UserInfo.deleteMany({firstName:userFirstName});
+    const del=await UserInfo.deleteMany({firstName:userFirstName});
     // const del= await UserInfo.findOneAndDelete({firstName:userFirstName});
     // const del=await UserInfo.findByIdAndDelete({_id:userId});
-    const del=await UserInfo.findByIdAndDelete(userId);
+    // const del=await UserInfo.findByIdAndDelete(userId);
     res.send(del);
-    
    }catch(err){
     res.status(404).send("Somethiong went wrong on in delete operation");
    }
@@ -69,10 +76,12 @@ app.patch("/user",async(req,res)=>{
     const userLastName=req.body.lastName;
     const data=req.body;
     try {
-    const updatedUser=await UserInfo.updateOne({lastName:userLastName},data );
+    const updatedUser=await UserInfo.updateOne({lastName:userLastName},data,{
+        runValidators:true
+    } );
     res.send(updatedUser);
     } catch (error) {
-        res.status(404).send("somiting went wrong inupdate");
+        res.status(404).send("somiting went wrong inupdate"+error.message);
     }
 })
 
