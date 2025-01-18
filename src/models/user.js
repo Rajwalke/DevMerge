@@ -1,10 +1,10 @@
 const mongoose=require("mongoose");
+const validator=require("validator")
 const {ProfileURL}=require("../utils/imageURL")
 const userSchema=new mongoose.Schema({
     firstName:{
         type:String,
         required:true,
-        unique: true,
         minLength:2,
         maxLength:50
 
@@ -12,28 +12,36 @@ const userSchema=new mongoose.Schema({
     lastName:{
         type:String
     },
-    password:{
-        type:String
-    },
     email:{
         type:String,
+        
+        lowercase:true,
         required:true,
         unique: true,
-        lowercase:true,
         trim:true,
+        // validate(value){
+        //     const validEmaile=/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value);
+        //     if(validEmaile){
+        //         return true;
+        //     }else{
+        //         return false;
+        //     }
+        // }
         validate(value){
-            const validEmaile=/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value);
-            if(validEmaile){
-                return true;
-            }else{
-                return false;
+            if(!validator.isEmail(value)){
+                throw new Error("Email is not valide");
             }
         }
 
     },
     password:{
         type:String,
-        // required:true,
+        required:true,
+        validate(value){
+            if(!validator.isStrongPassword(value)){
+                throw new Error("Password is not Strong")
+            }
+        }
     },
     gender:{
         type:String,
@@ -60,7 +68,13 @@ const userSchema=new mongoose.Schema({
     },
     photoURL:{
         type:String,
-        default : ProfileURL
+        
+        validate(value){
+            if(!validator.isURL(value)){
+                throw new Error("PhotoUrl is Inavlide");
+            }
+        },
+        default : ProfileURL,
     }
 },{
     timestamps:true

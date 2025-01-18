@@ -18,13 +18,13 @@ app.get("/",(req,res)=>{
 app.use(express.json());
 // signup the userapi
 app.post("/signup",async (req,res)=>{
-
+    const data=req.body;
     // const userData={
     //     firstName:"SaiPangle",
     //     lastName:"swant",
     //     password:"SaiPangle@2004"
     // }
-    const user=new UserInfo(req.body);
+    const user=new UserInfo(data);
         try{
             await user.save();
             res.send("userInfo Is added");
@@ -60,30 +60,53 @@ app.delete("/delete",async(req,res)=>{
    }
 })
 
-// app.patch("/user",async(req,res)=>{
-//     const userId=req.body._id;
-//     const data=req.body
-//     try{
-//         const userInfoupdate=await UserInfo.findByIdAndUpdate(userId,data,{returnDocument:"before"});
-//         res.send(userInfoupdate);
-//     }catch(err){
-//         res.status(404).send("Something went wrong");
-//     }
+app.patch("/user/:userID",async(req,res)=>{
+    const userId=req.params.userID;
+    const data=req.body
 
-// })
-
-app.patch("/user",async(req,res)=>{
-    const userLastName=req.body.lastName;
-    const data=req.body;
-    try {
-    const updatedUser=await UserInfo.updateOne({lastName:userLastName},data,{
-        runValidators:true
-    } );
-    res.send(updatedUser);
-    } catch (error) {
-        res.status(404).send("somiting went wrong inupdate"+error.message);
+    try{
+        const ALLOW_UPDATE=["gender","age","about","skills","photoURL"];
+        const isUpdateAllow=Object.keys(data).every((key)=>
+            ALLOW_UPDATE.includes(key)
+        )
+        if(!isUpdateAllow){
+            throw new Error("can't Update this field");
+        }
+        if(data?.skills?.length >10){
+            throw new Error("Only required less than 10 skillls")
+        }
+        const userInfoupdate=await UserInfo.findByIdAndUpdate(userId,data,{returnDocument:"after", runValidators:true});
+        res.send(userInfoupdate);
+    }catch(err){
+        res.status(404).send("Something went wrong" + err.message);
     }
+
 })
+
+// app.patch("/user",async(req,res)=>{
+//     const userLastName=req.body.lastName;
+//     const data=req.body;
+//     try {
+//         const ALLOW_UPDATE=["photoURL","skills","about","age","gender"];
+//         const isUpdateAllow=Object.keys(data).every((key)=>{
+//             return (key==="email" || key==="firstName" || key ==="password")? false : true;
+//         }
+      
+//     );
+        
+//         if(!isUpdateAllow){
+//             throw new Error("You can't Upadte");
+//         }
+
+
+//     const updatedUser=await UserInfo.updateOne({lastName:userLastName},data,{
+//         runValidators:true
+//     } );
+//     res.send(updatedUser);
+//     } catch (error) {
+//         res.status(404).send("somiting went wrong inupdate "+error.message);
+//     }
+// })
 
 app.get("/user",async(req,res)=>{
     const firstNameOfUser=req.body.firstName;
