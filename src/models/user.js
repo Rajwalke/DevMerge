@@ -6,16 +6,18 @@ const userSchema=new mongoose.Schema({
     firstName:{
         type:String,
         required:true,
-        minLength:2,
+        minLength:3,
         maxLength:50
 
     },
     lastName:{
-        type:String
+        type:String,
+        required:true,
+        minLength:3,
+        maxLength:50
     },
     email:{
         type:String,
-        
         lowercase:true,
         required:true,
         unique: true,
@@ -52,7 +54,7 @@ const userSchema=new mongoose.Schema({
                 return true;
             }
             else{
-                return false;
+                throw new Error("Please enter the gender")
             }
         }
     },
@@ -62,7 +64,8 @@ const userSchema=new mongoose.Schema({
     },
     about:{
         type:String,
-        default : "This information is about the user"
+        default : "This information is about the user",
+        maxLength:50
     },
     skills:{
         type:[String]

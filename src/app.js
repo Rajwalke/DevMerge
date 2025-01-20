@@ -1,9 +1,10 @@
 const express=require("express");
 const app=express();
+const bcrypt=require("bcrypt");
+const validator=require("validator");
 const {connectDB}=require("./config/databse");
-
 const {UserInfo}=require("./models/user")
-
+const {validationSignup} = require("./utils/validation")
 // const checkEmailIsvalide=(email)=>{
 //     const isemailvalid=/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
 //     if(!isemailvalid) return false;
@@ -19,21 +20,65 @@ app.use(express.json());
 // signup the userapi
 app.post("/signup",async (req,res)=>{
     const data=req.body;
+    const {firstName,lastName,email,password,gender,age}=data;
     // const userData={
     //     firstName:"SaiPangle",
     //     lastName:"swant",
     //     password:"SaiPangle@2004"
     // }
-    const user=new UserInfo(data);
         try{
+            validationSignup(data);
+            const passwordHash= await bcrypt.hash(password,10);
+            const user=new UserInfo({
+                firstName,
+                lastName,
+                email,
+                password:passwordHash,
+                gender,
+                age
+            });
             await user.save();
             res.send("userInfo Is added");
         }catch(error){
-            res.status(400).send("Data is not addes" + error.message)
+            res.status(400).send("Error: " + error.message)
         }
     
 
 })
+
+// login the user
+app.post("/login",async(req,res)=>{
+    const data=req.body;
+
+    const {email,password}=data;
+    const userEmail=email;
+     try{
+
+        if(!validator.isEmail(email)){
+            throw new Error("Check the EmailId");
+        }
+        const ans=await UserInfo.find({email:userEmail})
+        if(ans.length===0){
+            throw new Error("Email is Incorrect");
+        }
+        else{
+            const hashPassworduser=ans[0]?.password;
+            console.log(hashPassworduser)
+            const uservalide=await bcrypt.compare(password, hashPassworduser)
+                if(uservalide){
+                   res.send("USer is Valide");
+                }else{
+                    throw new Error("Password is Invalide");
+                }
+            }
+        }catch(err){
+        // console.log(err)
+        res.status(404).send("Error: "+err.message);
+     }
+
+
+})
+
 // feedapi
 app.get("/feed",async(req,res)=>{
     try{
