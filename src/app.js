@@ -4,7 +4,11 @@ const bcrypt=require("bcrypt");
 const validator=require("validator");
 const {connectDB}=require("./config/databse");
 const {UserInfo}=require("./models/user")
-const {validationSignup} = require("./utils/validation")
+const {validationSignup} = require("./utils/validation");
+const jwt=require('jsonwebtoken');
+const cookieParser=require('cookie-parser')
+const {userAuth}=require("./middlewere/authorized");
+
 // const checkEmailIsvalide=(email)=>{
 //     const isemailvalid=/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
 //     if(!isemailvalid) return false;
@@ -17,7 +21,8 @@ app.get("/",(req,res)=>{
 })
 
 app.use(express.json());
-// signup the userapi
+app.use(cookieParser());
+// signup the user
 app.post("/signup",async (req,res)=>{
     const data=req.body;
     const {firstName,lastName,email,password,gender,age}=data;
@@ -57,16 +62,22 @@ app.post("/login",async(req,res)=>{
         if(!validator.isEmail(email)){
             throw new Error("Check the EmailId");
         }
-        const ans=await UserInfo.find({email:userEmail})
-        if(ans.length===0){
+        const user=await UserInfo.findOne({email:userEmail})
+        if(!user){
             throw new Error("Email is Incorrect");
         }
         else{
-            const hashPassworduser=ans[0]?.password;
-            console.log(hashPassworduser)
+            const hashPassworduser=user?.password;
+            // console.log(hashPassworduser)
             const uservalide=await bcrypt.compare(password, hashPassworduser)
-                if(uservalide){
-                   res.send("USer is Valide");
+            
+                if(uservalide){ 
+                    console.log(user)
+                    // Password is validate
+                    const token=await jwt.sign({_id:user?._id},"TinderDB@1234");
+                    res.cookie("Token",token);
+
+                    res.send("Login Succsessfully");
                 }else{
                     throw new Error("Password is Invalide");
                 }
@@ -79,7 +90,26 @@ app.post("/login",async(req,res)=>{
 
 })
 
-// feedapi
+// Profile of user
+app.get("/profile",userAuth,async(req,res)=>{
+    try{
+        // const cookie=req.cookies;
+        // const {Token}=cookie;
+
+        // if(!Token) throw new Error("Please Login");
+        // const decodeToken=jwt.verify(Token,"TinderDB@1234");
+        // const {_id}=decodeToken;
+        // const userProfile=await UserInfo.findById(_id);
+        const userProfile=req.user;
+        console.log(userProfile)
+        res.send("Profile is created"+userProfile)
+    }catch(err){
+        // console.log(err)
+        res.status(404).send("Error: "+err.message);
+     }
+})
+
+// feedapi all userdata
 app.get("/feed",async(req,res)=>{
     try{
         const allUsers=await UserInfo.find({});
@@ -89,6 +119,8 @@ app.get("/feed",async(req,res)=>{
         res.status(404).send("Something went wrong");
     }
 })
+
+// delete api 
 app.delete("/delete",async(req,res)=>{
     const userFirstName=req.body.firstName;
     // const userLastName=req.body.lastName;
@@ -105,6 +137,7 @@ app.delete("/delete",async(req,res)=>{
    }
 })
 
+// patch api find the user
 app.patch("/user/:userID",async(req,res)=>{
     const userId=req.params.userID;
     const data=req.body
