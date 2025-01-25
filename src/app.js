@@ -74,7 +74,7 @@ app.post("/login",async(req,res)=>{
                 if(uservalide){ 
                     console.log(user)
                     // Password is validate
-                    const token=await jwt.sign({_id:user?._id},"TinderDB@1234");
+                    const token=await jwt.sign({_id:user?._id},"TinderDB@1234",{expiresIn:'7d'});
                     res.cookie("Token",token);
 
                     res.send("Login Succsessfully");
@@ -110,7 +110,7 @@ app.get("/profile",userAuth,async(req,res)=>{
 })
 
 // feedapi all userdata
-app.get("/feed",async(req,res)=>{
+app.get("/feed",userAuth,async(req,res)=>{
     try{
         const allUsers=await UserInfo.find({});
         console.log("Type of all users",typeof(allUsers))
