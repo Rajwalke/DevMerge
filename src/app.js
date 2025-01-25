@@ -67,16 +67,15 @@ app.post("/login",async(req,res)=>{
             throw new Error("Email is Incorrect");
         }
         else{
-            const hashPassworduser=user?.password;
+            // const hashPassworduser=user?.password;
             // console.log(hashPassworduser)
-            const uservalide=await bcrypt.compare(password, hashPassworduser)
+            const uservalide=await user.getValidate(password);
             
                 if(uservalide){ 
                     console.log(user)
-                    // Password is validate
-                    const token=await jwt.sign({_id:user?._id},"TinderDB@1234",{expiresIn:'7d'});
+                    // creat the token
+                    const token=await user.getJWT();
                     res.cookie("Token",token);
-
                     res.send("Login Succsessfully");
                 }else{
                     throw new Error("Password is Invalide");

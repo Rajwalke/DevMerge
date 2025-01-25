@@ -1,7 +1,10 @@
 // NEVER TRUST USER INPUT DATA
 const mongoose=require("mongoose");
 const validator=require("validator")
-const {ProfileURL}=require("../utils/imageURL")
+const {ProfileURL}=require("../utils/imageURL");
+const bcrypt=require('bcrypt');
+const jwt=require('jsonwebtoken')
+
 const userSchema=new mongoose.Schema({
     firstName:{
         type:String,
@@ -83,6 +86,16 @@ const userSchema=new mongoose.Schema({
 },{
     timestamps:true
 });
+
+userSchema.methods.getJWT=async function(){
+
+   const token= await jwt.sign({_id:this?._id},"TinderDB@1234",{expiresIn:'7d'});
+    return token;
+}
+userSchema.methods.getValidate=async function(passwordInput){
+    const isPasswordValide=await bcrypt.compare(passwordInput, this?.password)
+    return isPasswordValide;
+}
 
 const UserInfo=mongoose.model("UserInfo",userSchema);
 
