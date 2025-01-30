@@ -3,7 +3,8 @@ const bcrypt=require("bcrypt");
 const validator=require("validator");
 const {UserInfo}=require("../models/user")
 const {validationSignup} = require("../utils/validation");
-
+const { userAuth } = require('../middlewere/authorized');
+const jwt=require('jsonwebtoken')
 const authRouter=express.Router();
 
 // signup the user
@@ -73,4 +74,9 @@ authRouter.post("/login",async(req,res)=>{
 
 })
 
+// Logout the user
+authRouter.post("/logout",userAuth,async(req,res)=>{
+    res.cookie("Token",null,{expires:new Date(Date.now())})
+    res.send("logout");
+})
 module.exports=authRouter;
