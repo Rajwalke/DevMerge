@@ -1,164 +1,42 @@
 const express=require("express");
 const app=express();
-const bcrypt=require("bcrypt");
-const validator=require("validator");
 const {connectDB}=require("./config/databse");
-const {UserInfo}=require("./models/user")
-const {validationSignup} = require("./utils/validation");
-const jwt=require('jsonwebtoken');
 const cookieParser=require('cookie-parser')
-const {userAuth}=require("./middlewere/authorized");
-
-// const checkEmailIsvalide=(email)=>{
-//     const isemailvalid=/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
-//     if(!isemailvalid) return false;
-
-//     return true;
-// }
-
-app.get("/",(req,res)=>{
-    res.send("This is My First Page");
-})
+const authRouter=require("./routes/authRouter");
+const profileRouter=require("./routes/profileRouter");
+const userRouter=require("./routes/userRouter");
+const requestRouter=require("./routes/requestRouter");
 
 app.use(express.json());
 app.use(cookieParser());
-// signup the user
-app.post("/signup",async (req,res)=>{
-    const data=req.body;
-    const {firstName,lastName,email,password,gender,age}=data;
-    // const userData={
-    //     firstName:"SaiPangle",
-    //     lastName:"swant",
-    //     password:"SaiPangle@2004"
-    // }
-        try{
-            validationSignup(data);
-            const passwordHash= await bcrypt.hash(password,10);
-            const user=new UserInfo({
-                firstName,
-                lastName,
-                email,
-                password:passwordHash,
-                gender,
-                age
-            });
-            await user.save();
-            res.send("userInfo Is added");
-        }catch(error){
-            res.status(400).send("Error: " + error.message)
-        }
-    
 
+app.use("/",authRouter);
+app.use("/",profileRouter);
+app.use("/",userRouter);
+app.use("/",requestRouter);
+
+
+
+
+connectDB().then(()=>{
+    console.log("database is created")
+    app.listen(7777,()=>{
+        console.log("server is created")
+    })
+}).catch((Error)=>{
+    console.log("dtaabase is not connected so server is not created",Error);
 })
 
-// login the user
-app.post("/login",async(req,res)=>{
-    const data=req.body;
-
-    const {email,password}=data;
-    const userEmail=email;
-     try{
-
-        if(!validator.isEmail(email)){
-            throw new Error("Check the EmailId");
-        }
-        const user=await UserInfo.findOne({email:userEmail})
-        if(!user){
-            throw new Error("Email is Incorrect");
-        }
-        else{
-            // const hashPassworduser=user?.password;
-            // console.log(hashPassworduser)
-            const uservalide=await user.getValidate(password);
-            
-                if(uservalide){ 
-                    console.log(user)
-                    // creat the token
-                    const token=await user.getJWT();
-                    res.cookie("Token",token);
-                    res.send("Login Succsessfully");
-                }else{
-                    throw new Error("Password is Invalide");
-                }
-            }
-        }catch(err){
-        // console.log(err)
-        res.status(404).send("Error: "+err.message);
-     }
 
 
-})
 
-// Profile of user
-app.get("/profile",userAuth,async(req,res)=>{
-    try{
-        // const cookie=req.cookies;
-        // const {Token}=cookie;
 
-        // if(!Token) throw new Error("Please Login");
-        // const decodeToken=jwt.verify(Token,"TinderDB@1234");
-        // const {_id}=decodeToken;
-        // const userProfile=await UserInfo.findById(_id);
-        const userProfile=req.user;
-        console.log(userProfile)
-        res.send("Profile is created"+userProfile)
-    }catch(err){
-        // console.log(err)
-        res.status(404).send("Error: "+err.message);
-     }
-})
 
-// feedapi all userdata
-app.get("/feed",userAuth,async(req,res)=>{
-    try{
-        const allUsers=await UserInfo.find({});
-        console.log("Type of all users",typeof(allUsers))
-        res.send(allUsers) ;
-    }catch(err){
-        res.status(404).send("Something went wrong");
-    }
-})
 
-// delete api 
-app.delete("/delete",async(req,res)=>{
-    const userFirstName=req.body.firstName;
-    // const userLastName=req.body.lastName;
-    // const userId=req.body._id;
-   try{
-    // const del=await UserInfo.deleteOne({firstName:userFirstName});
-    const del=await UserInfo.deleteMany({firstName:userFirstName});
-    // const del= await UserInfo.findOneAndDelete({firstName:userFirstName});
-    // const del=await UserInfo.findByIdAndDelete({_id:userId});
-    // const del=await UserInfo.findByIdAndDelete(userId);
-    res.send(del);
-   }catch(err){
-    res.status(404).send("Somethiong went wrong on in delete operation");
-   }
-})
 
-// patch api find the user
-app.patch("/user/:userID",async(req,res)=>{
-    const userId=req.params.userID;
-    const data=req.body
 
-    try{
-        const ALLOW_UPDATE=["gender","age","about","skills","photoURL"];
-        const isUpdateAllow=Object.keys(data).every((key)=>
-            ALLOW_UPDATE.includes(key)
-        )
-        if(!isUpdateAllow){
-            throw new Error("can't Update this field");
-        }
-        if(data?.skills?.length >10){
-            throw new Error("Only required less than 10 skillls")
-        }
-        const userInfoupdate=await UserInfo.findByIdAndUpdate(userId,data,{returnDocument:"after", runValidators:true});
-        res.send(userInfoupdate);
-    }catch(err){
-        res.status(404).send("Something went wrong" + err.message);
-    }
 
-})
+
 
 // app.patch("/user",async(req,res)=>{
 //     const userLastName=req.body.lastName;
@@ -185,27 +63,16 @@ app.patch("/user/:userID",async(req,res)=>{
 //     }
 // })
 
-app.get("/user",async(req,res)=>{
-    const firstNameOfUser=req.body.firstName;
-    try{
-        const allUser = await UserInfo.findOne({firstName:firstNameOfUser});
-        res.send(allUser); 
-    }catch(err){
-        res.status(404).send("User not found");
-    }
+// app.get("/user",async(req,res)=>{
+//     const firstNameOfUser=req.body.firstName;
+//     try{
+//         const allUser = await UserInfo.findOne({firstName:firstNameOfUser});
+//         res.send(allUser); 
+//     }catch(err){
+//         res.status(404).send("User not found");
+//     }
   
-})
-
-
-connectDB().then(()=>{
-    console.log("database is created")
-    app.listen(7777,()=>{
-        console.log("server is created")
-    })
-}).catch((Error)=>{
-    console.log("dtaabase is not connected so server is not created",Error);
-})
-
+// })
 
 
 
