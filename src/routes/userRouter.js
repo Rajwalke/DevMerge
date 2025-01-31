@@ -7,7 +7,7 @@ const userRouter=express.Router();
 userRouter.get("/feed",userAuth,async(req,res)=>{
     try{
         const allUsers=await UserInfo.find({});
-        console.log("Type of all users",typeof(allUsers))
+        // console.log("Type of all users",typeof(allUsers))
         res.send(allUsers) ;
     }catch(err){
         res.status(404).send("Something went wrong");

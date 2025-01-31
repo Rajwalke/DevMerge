@@ -17,7 +17,7 @@ const userAuth=async(req,res,next)=>{
         const cookie=req.cookies;
 
         const{Token}=cookie;
-        console.log("Token from auth",Token);
+        // console.log("Token from auth",Token);
         if(!Token){
             throw new Error("Tokenis invalide");
         }
@@ -26,6 +26,7 @@ const userAuth=async(req,res,next)=>{
         const isUser=await UserInfo.findById(_id);
         if(isUser){
             req.user=isUser;
+            req.userID=_id;
             next();
         }else{
             throw new Error("Please Login or Signup");

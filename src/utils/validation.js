@@ -22,5 +22,17 @@ const validationSignup=(data)=>{
     }
 
 }
-
-module.exports={validationSignup};
+const validationProfileEditData=(body)=>{
+    const {about,skills}=body;
+    const NOT_ALLOW_UPDATE=["email","password"];
+        Object.keys(body).forEach((key)=>{
+            if(NOT_ALLOW_UPDATE.includes(key)===true){
+                throw new Error("You can't Update the "+ key);
+                
+            }
+        })
+        if(about && about.length>100) throw new Error("About section should be less than 150 characters");
+        if(skills && skills.length>20)throw new Error("Skills should be less than 20");
+        return true;
+}
+module.exports={validationSignup,validationProfileEditData};

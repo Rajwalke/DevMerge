@@ -57,7 +57,7 @@ authRouter.post("/login",async(req,res)=>{
             const uservalide=await user.getValidate(password);
             
                 if(uservalide){ 
-                    console.log(user)
+                    // console.log(user)
                     // creat the token
                     const token=await user.getJWT();
                     res.cookie("Token",token);
