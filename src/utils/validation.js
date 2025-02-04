@@ -35,4 +35,11 @@ const validationProfileEditData=(body)=>{
         if(skills && skills.length>20)throw new Error("Skills should be less than 20");
         return true;
 }
-module.exports={validationSignup,validationProfileEditData};
+const isStatusValide=(status)=>{
+    const ALLOW_Status=["interested","ignored"];
+    if(!ALLOW_Status.includes(status)){
+        return false;
+    }
+    return true;
+}
+module.exports={validationSignup,validationProfileEditData,isStatusValide};

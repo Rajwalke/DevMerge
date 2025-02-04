@@ -43,7 +43,7 @@ profileRouter.patch("/profile/edit",userAuth,async(req,res)=>{
         res.status(404).send("Error: "+ err)
     }
 })
-// Password edit
+// Password Password edit
 profileRouter.patch("/profile/editPassword",userAuth,async(req,res)=>{
     const user=req.user;
     const {password,newpassword}=req.body;
