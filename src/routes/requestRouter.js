@@ -4,7 +4,7 @@ const {ConnectionRequestModel}=require("../models/connectionRequest");
 const { isStatusValide } = require('../utils/validation');
 const { UserInfo } = require('../models/user');
 const requestRouter=express.Router();
-
+const {isValideReviewStatus} =require("../utils/validation")
 // connection request send from user to another user
 requestRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
     // const body=req.body;
@@ -27,7 +27,7 @@ requestRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
             throw new Error("User doesn't exist");
         }
         // check,there is an existing connection request 
-        const checkTouserIdExist=await ConnectionRequestModel.findOne({toUserId:toUserId});
+        const checkTouserIdExist=await ConnectionRequestModel.findOne({toUserId:toUserId,formUserId:formUserId});
         if(checkTouserIdExist){
             throw new Error(`${req.user.firstName} you already send the connection request to ${toUserInfo.firstName}, You can't send request once again`);
             
@@ -52,5 +52,27 @@ requestRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
     }
 })
 
+requestRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)=>{
+    const requestId=req.params.requestId; //fromuserID
+    const user=req.user;  // toUserID
+    const status=req.params.status;
+    try{
+        if(!isValideReviewStatus(status)){
+            throw new Error("Status is Invalide");
+        }
+        const connectionRequest=await ConnectionRequestModel.findOne({formUserId:requestId , toUserId: user._id, status:"interested"}).populate("formUserId","firstName lastName");
+        if(!connectionRequest){
+            throw new Error("Invalide connection request");
+        }
+        connectionRequest.status=status;
+        await connectionRequest.save();
+        res.json({message : `Connection request is ${status}`,
+            connectionRequest
+        })
+
+    }catch(err){
+        res.status(404).json({message:"Error : "+err.message});
+    }
+})
 
 module.exports=requestRouter;

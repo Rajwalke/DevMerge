@@ -3,10 +3,12 @@ const mongoose=require('mongoose');
 const connectionRequestSchema=new mongoose.Schema({
     formUserId:{
         type: mongoose.Schema.Types.ObjectId,
+        ref:"UserInfo",
         require:true
     },
     toUserId:{
         type:mongoose.Schema.Types.ObjectId,
+        ref:"UserInfo",
         require:true
     },
     status:{

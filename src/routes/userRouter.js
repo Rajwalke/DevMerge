@@ -1,8 +1,62 @@
 const express=require('express');
 const { UserInfo } = require('../models/user');
 const { userAuth } = require('../middlewere/authorized');
+const { ConnectionRequestModel } = require('../models/connectionRequest');
 
 const userRouter=express.Router();
+
+// get all pending user requests for loggedIn User
+
+userRouter.get("/user/pendingrequest",userAuth,async(req,res)=>{
+    const user=req.user;
+
+    try{
+        const allPendingRequest=await ConnectionRequestModel.find({toUserId:user?._id,status:"interested"}).populate("formUserId",["firstName","lastName","photoURL"]);
+        if(!allPendingRequest){
+            throw new Error("No request are pending")
+        }
+        res.json({message:"Pending connection requests",
+            allPendingRequest
+        })
+
+    }catch(err){
+        res.status(404).json({message:"Error : "+err.message})
+    }
+
+
+})
+
+// who acdepted my invivation/request
+
+userRouter.get("/user/connection/accepted",userAuth,async(req,res)=>{
+    const loggedInUser=req.user;
+
+    try{
+        let allConnectionAccepted=await ConnectionRequestModel.find({
+            $or:[
+                {formUserId:loggedInUser._id, status:"accepted"},
+                {toUserId:loggedInUser._id, status:"accepted"}
+            ]
+        })
+        .populate("toUserId","firstName lastName")
+        .populate("formUserId","firstName lastName");
+
+        // fetch the name of sender/reciver
+        const data=allConnectionAccepted.map((row)=>{
+            if(row.formUserId._id.toString()===loggedInUser._id.toString()){
+                return row.toUserId;
+            }else{
+                return row.formUserId;
+            }
+        })
+        res.json({message:`This peoples are interested in you`,
+            data
+        })
+    }catch(err){
+        res.status(404).send("Error : "+err.message)
+    }
+})
+
 // feedapi all userdata
 userRouter.get("/feed",userAuth,async(req,res)=>{
     try{

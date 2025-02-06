@@ -42,4 +42,11 @@ const isStatusValide=(status)=>{
     }
     return true;
 }
-module.exports={validationSignup,validationProfileEditData,isStatusValide};
+const isValideReviewStatus=(status)=>{
+    const ALLOW_Status=["accepted","rejected"];
+    if(!ALLOW_Status.includes(status)){
+        return false;
+    }
+    return true;
+}
+module.exports={validationSignup,validationProfileEditData,isStatusValide,isValideReviewStatus};

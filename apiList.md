@@ -13,8 +13,11 @@
 ## ConnectionRequestRouter
 - POST/request/send/interested/:userID
 - POST/request/send/ignore/:userID
+- POST/request/send/:status/:userID 
+
 - POST/request/send/accept/:userID
 - POST/request/send/reject/:userID
+- POST/request/send/:status/:userID
 
 ## userRouter
 - GET/user/connections
