@@ -13,15 +13,28 @@ requestRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
     const formUserId =req.user._id;
     const status=req.params.status;
 
-    try{
+    try{ 
+        // if(toUserId == formUserId){
+        //     throw new Error("self reuqest is not allowed")
+        // }
         const isAllowStatus=isStatusValide(status);
         if(!isAllowStatus){
-            throw new Error("Wrong Status");
+            throw new Error("Invalide Status " + status);
         }
 
         const toUserInfo=await UserInfo.findById(toUserId);
         if(!toUserInfo){
-            throw new Error("User doesn't not exist");
+            throw new Error("User doesn't exist");
+        }
+        // check,there is an existing connection request 
+        const checkTouserIdExist=await ConnectionRequestModel.findOne({toUserId:toUserId});
+        if(checkTouserIdExist){
+            throw new Error(`${req.user.firstName} you already send the connection request to ${toUserInfo.firstName}, You can't send request once again`);
+            
+        }
+        const reverseCheck=await ConnectionRequestModel.findOne({formUserId:toUserId, toUserId:formUserId});
+        if(reverseCheck){
+            throw new Error(`${toUserInfo.firstName} Already send the connection request to you`)
         }
 
         const sendConnection=new ConnectionRequestModel({
@@ -31,11 +44,10 @@ requestRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
         })
         await sendConnection.save();
         res.json({
-            message:`connection request send from ${req.user.firstName} to ${toUserInfo.firstName}`
+            message:`${req.user.firstName} is ${status} ${toUserInfo.firstName}`
         })
 
     }catch(err){
-        console.log(err)
         res.status(400).send("Error : "+err.message);
     }
 })
