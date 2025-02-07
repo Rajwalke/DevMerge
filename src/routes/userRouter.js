@@ -57,16 +57,50 @@ userRouter.get("/user/connection/accepted",userAuth,async(req,res)=>{
     }
 })
 
-// feedapi all userdata
-userRouter.get("/feed",userAuth,async(req,res)=>{
+// feedApi
+userRouter.get("/user/feed",userAuth,async(req,res)=>{
+    const loggedInUser=req.user;
+    const page=parseInt(req.query.page) || 1;
+    const limit=parseInt(req.query.limit) || 10;
+    const skip=(page-1)*limit;
     try{
-        const allUsers=await UserInfo.find({});
-        // console.log("Type of all users",typeof(allUsers))
-        res.send(allUsers) ;
+        const allUSerData=await UserInfo.find({})
+        .select("firstName lastName age skills about gender photoURL")
+
+        const feedData=await Promise.all(
+        allUSerData.map(async(data)=>{
+            const userId=data._id;
+            if(userId.toString()===loggedInUser._id.toString())return null;
+            // console.log(userId);
+            const checkData=await ConnectionRequestModel.findOne({
+                $or:[
+                    {formUserId:userId,toUserId:loggedInUser._id},
+                    {formUserId:loggedInUser._id,toUserId:userId}
+                ]
+            });
+            if(checkData===null) return data;
+            return null; 
+            
+        })
+    )
+    const data=feedData.filter((data)=> data!==null);
+  
+    res.json({userFeedData: data});
     }catch(err){
-        res.status(404).send("Something went wrong");
+        res.status(404).json({message:"Error :"+err.message});
     }
 })
+
+// feedapi all userdata
+// userRouter.get("/feed",userAuth,async(req,res)=>{
+//     try{
+//         const allUsers=await UserInfo.find({});
+//         // console.log("Type of all users",typeof(allUsers))
+//         res.send(allUsers) ;
+//     }catch(err){
+//         res.status(404).send("Something went wrong");
+//     }
+// })
 // delete api 
 userRouter.patch("/user/:userID",async(req,res)=>{
     const userId=req.params.userID;

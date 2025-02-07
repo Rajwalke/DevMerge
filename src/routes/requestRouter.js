@@ -60,7 +60,7 @@ requestRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)=
         if(!isValideReviewStatus(status)){
             throw new Error("Status is Invalide");
         }
-        const connectionRequest=await ConnectionRequestModel.findOne({formUserId:requestId , toUserId: user._id, status:"interested"}).populate("formUserId","firstName lastName");
+        const connectionRequest=await ConnectionRequestModel.findOne({_id:requestId , toUserId: user._id, status:"interested"}).populate("formUserId","firstName lastName");
         if(!connectionRequest){
             throw new Error("Invalide connection request");
         }
