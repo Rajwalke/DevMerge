@@ -28,6 +28,8 @@ authRouter.post("/signup",async (req,res)=>{
                 age
             });
             await user.save();
+            const token= await jwt.sign({_id:user._id},"TinderDB@1234",{expiresIn:'7d'});
+            res.cookie("Token",token);
             res.send("userInfo Is added");
         }catch(error){
             res.status(400).json({message: "Error: " + error.message})
