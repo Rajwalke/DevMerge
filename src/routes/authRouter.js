@@ -30,7 +30,7 @@ authRouter.post("/signup",async (req,res)=>{
             await user.save();
             res.send("userInfo Is added");
         }catch(error){
-            res.status(400).send("Error: " + error.message)
+            res.status(400).json({message: "Error: " + error.message})
         }
     
 
@@ -61,7 +61,9 @@ authRouter.post("/login",async(req,res)=>{
                     // creat the token
                     const token=await user.getJWT();
                     res.cookie("Token",token);
-                    res.send("Login Succsessfully");
+                    res.json({message:"Login Succsessfully",
+                        userInfo:user
+                    });
                 }else{
                     throw new Error("Password is Invalide");
                 }
