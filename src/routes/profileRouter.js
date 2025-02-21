@@ -18,7 +18,9 @@ profileRouter.get("/profile/view",userAuth,async(req,res)=>{
         // const userProfile=await UserInfo.findById(_id);
         const userProfile=req.user;
         console.log(userProfile)
-        res.send("Profile is created"+userProfile)
+        res.json({message:"UserProfile",
+            userProfile
+        })
     }catch(err){
         // console.log(err)
         res.status(404).send("Error: "+err.message);
@@ -40,7 +42,7 @@ profileRouter.patch("/profile/edit",userAuth,async(req,res)=>{
         }
         
     }catch(err){
-        res.status(404).send("Error: "+ err)
+        res.status(404).json({message:err.message});
     }
 })
 // Password Password edit

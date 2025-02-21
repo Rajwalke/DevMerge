@@ -13,12 +13,12 @@ const validationSignup=(data)=>{
         if(password.length < 8){
             throw new Error("Atleast 8 characters password");
         }else{
-            throw new Error("please enter strong password(1 captial ,1 small,1 number,1 symbol)");
+            throw new Error("please enter strong password(Atleast 1 captial ,1 small,1 number,1 symbol)");
         }
         
     }
     else if(age<18){
-        throw new Error("Your age is less than 18");
+        throw new Error("Your age is less than 18 You can't create a Profile");
     }
 
 }

@@ -69,7 +69,7 @@ const userSchema=new mongoose.Schema({
     about:{
         type:String,
         default : "This information is about the user",
-        maxLength:50
+        maxLength:150
     },
     skills:{
         type:[String]
@@ -83,6 +83,7 @@ const userSchema=new mongoose.Schema({
             }
         },
         default : ProfileURL,
+        
     }
 },{
     timestamps:true

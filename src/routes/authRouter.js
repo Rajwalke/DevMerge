@@ -10,7 +10,7 @@ const authRouter=express.Router();
 // signup the user
 authRouter.post("/signup",async (req,res)=>{
     const data=req.body;
-    const {firstName,lastName,email,password,gender,age}=data;
+    const {firstName,lastName,email,password,gender,age,photoURL}=data;
     // const userData={
     //     firstName:"SaiPangle",
     //     lastName:"swant",
@@ -25,14 +25,17 @@ authRouter.post("/signup",async (req,res)=>{
                 email,
                 password:passwordHash,
                 gender,
-                age
+                age,
+                photoURL
             });
             await user.save();
             const token= await jwt.sign({_id:user._id},"TinderDB@1234",{expiresIn:'7d'});
             res.cookie("Token",token);
-            res.send("userInfo Is added");
+            res.json({message:"Signup Succsessfully",
+                userInfo:user
+            });
         }catch(error){
-            res.status(400).json({message: "Error: " + error.message})
+            res.status(400).json({message:error.message})
         }
     
 
@@ -72,7 +75,7 @@ authRouter.post("/login",async(req,res)=>{
             }
         }catch(err){
         // console.log(err)
-        res.status(404).send("Error: "+err.message);
+        res.status(404).json({message:err.message});
      }
 
 
@@ -81,6 +84,6 @@ authRouter.post("/login",async(req,res)=>{
 // Logout the user
 authRouter.post("/logout",userAuth,async(req,res)=>{
     res.cookie("Token",null,{expires:new Date(Date.now())})
-    res.send("logout");
+    res.json({message : "logout"});
 })
 module.exports=authRouter;

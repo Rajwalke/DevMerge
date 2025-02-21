@@ -19,7 +19,7 @@ const userAuth=async(req,res,next)=>{
         const{Token}=cookie;
         // console.log("Token from auth",Token);
         if(!Token){
-            throw new Error("Tokenis invalide");
+            return res.status(401).send("Please Login or Signup")
         }
         const decodedToken=await jwt.verify(Token,"TinderDB@1234");
         const {_id}=decodedToken;

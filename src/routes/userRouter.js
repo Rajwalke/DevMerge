@@ -6,7 +6,6 @@ const { ConnectionRequestModel } = require('../models/connectionRequest');
 const userRouter=express.Router();
 
 // get all pending user requests for loggedIn User
-
 userRouter.get("/user/pendingrequest",userAuth,async(req,res)=>{
     const user=req.user;
 
@@ -20,14 +19,13 @@ userRouter.get("/user/pendingrequest",userAuth,async(req,res)=>{
         })
 
     }catch(err){
-        res.status(404).json({message:"Error : "+err.message})
+        res.status(404).json({message:err.message})
     }
 
 
 })
 
 // who acdepted my invivation/request
-
 userRouter.get("/user/connection/accepted",userAuth,async(req,res)=>{
     const loggedInUser=req.user;
 
@@ -66,7 +64,7 @@ userRouter.get("/user/feed",userAuth,async(req,res)=>{
     try{
         const allUSerData=await UserInfo.find({})
         .select("firstName lastName age skills about gender photoURL")
-
+        // console.log("allUser",allUSerData);
         const feedData=await Promise.all(
         allUSerData.map(async(data)=>{
             const userId=data._id;
@@ -74,15 +72,18 @@ userRouter.get("/user/feed",userAuth,async(req,res)=>{
             // console.log(userId);
             const checkData=await ConnectionRequestModel.findOne({
                 $or:[
-                    {formUserId:userId,toUserId:loggedInUser._id},
-                    {formUserId:loggedInUser._id,toUserId:userId}
+                    {formUserId:userId, toUserId:loggedInUser._id},
+                    {formUserId:loggedInUser._id, toUserId:userId}
                 ]
             });
+            console.log("CheckData",checkData);
             if(checkData===null) return data;
             return null; 
             
         })
     )
+    console.log("***********------------*************");
+    console.log(feedData);
     const data=feedData.filter((data)=> data!==null);
   
     res.json({userFeedData: data});
