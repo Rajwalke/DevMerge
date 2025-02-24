@@ -36,11 +36,11 @@ userRouter.get("/user/connection/accepted",userAuth,async(req,res)=>{
                 {toUserId:loggedInUser._id, status:"accepted"}
             ]
         })
-        .populate("toUserId","firstName lastName")
-        .populate("formUserId","firstName lastName");
+        .populate("toUserId","firstName lastName photoURL")
+        .populate("formUserId","firstName lastName photoURL");
 
         // fetch the name of sender/reciver
-        const data=allConnectionAccepted.map((row)=>{
+        const Alldata=allConnectionAccepted.map((row)=>{
             if(row.formUserId._id.toString()===loggedInUser._id.toString()){
                 return row.toUserId;
             }else{
@@ -48,7 +48,7 @@ userRouter.get("/user/connection/accepted",userAuth,async(req,res)=>{
             }
         })
         res.json({message:`This peoples are interested in you`,
-            data
+            data:Alldata
         })
     }catch(err){
         res.status(404).send("Error : "+err.message)

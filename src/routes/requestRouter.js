@@ -53,7 +53,7 @@ requestRouter.post("/request/send/:status/:toUserId",userAuth,async(req,res)=>{
 })
 
 requestRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)=>{
-    const requestId=req.params.requestId; //fromuserID
+    const requestId=req.params.requestId; 
     const user=req.user;  // toUserID
     const status=req.params.status;
     try{
