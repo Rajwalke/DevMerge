@@ -5,6 +5,7 @@ const {userAuth}=require("../middlewere/authorized");
 const { UserInfo } = require('../models/user');
 const {validationProfileEditData}=require("../utils/validation");
 const bcrypt=require('bcrypt');
+const { ConnectionRequestModel } = require('../models/connectionRequest');
 
 // Profile of user
 profileRouter.get("/profile/view",userAuth,async(req,res)=>{
@@ -66,5 +67,29 @@ profileRouter.patch("/profile/editPassword",userAuth,async(req,res)=>{
         res.status(404).send("Error: "+err);
     }
 
+})
+
+profileRouter.get("/profile/friend/:reqId",userAuth,async(req,res)=>{
+    const friend_id=req.params.reqId;
+    const loggedInUser=req.userID;
+    console.log(friend_id,loggedInUser)
+    try{
+        const friendInfo=await ConnectionRequestModel.findOne({
+            $or:[
+                {formUserId:loggedInUser,toUserId:friend_id,status:"accepted"},
+                {formUserId:friend_id,toUserId:loggedInUser,status:"accepted"},
+            ]
+        });
+        console.log(friendInfo)
+        if(friendInfo===null){
+            throw new Error("This Request_ID is not in friend List");
+        }
+        const LoggedInUser_Friend_Info=await UserInfo.findById(friend_id);
+
+        res.json({friendProdile:LoggedInUser_Friend_Info});
+    }
+    catch(err){
+        res.status(400).json({message:err.message});
+    }
 })
 module.exports=profileRouter;
