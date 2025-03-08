@@ -69,6 +69,8 @@ profileRouter.patch("/profile/editPassword",userAuth,async(req,res)=>{
 
 })
 
+
+// Person who accepted my request and i accepted request from another person come over here
 profileRouter.get("/profile/friend/:reqId",userAuth,async(req,res)=>{
     const friend_id=req.params.reqId;
     const loggedInUser=req.userID;
@@ -86,7 +88,7 @@ profileRouter.get("/profile/friend/:reqId",userAuth,async(req,res)=>{
         }
         const LoggedInUser_Friend_Info=await UserInfo.findById(friend_id);
 
-        res.json({friendProdile:LoggedInUser_Friend_Info});
+        res.json({friendProfile:LoggedInUser_Friend_Info});
     }
     catch(err){
         res.status(400).json({message:err.message});

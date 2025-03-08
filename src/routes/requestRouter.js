@@ -75,4 +75,25 @@ requestRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)=
     }
 })
 
+requestRouter.post("/profile/friend/:reqId/rejected",userAuth,async(req,res)=>{
+    const loginUserId=req.userID;
+    const friendId=req.params.reqId;
+    const status="rejected";
+    try{
+        const friendInfo=await ConnectionRequestModel.findOne({
+            $or:[
+                {formUserId:loginUserId,toUserId:friendId,status:"accepted"},
+                {formUserId:friendId,toUserId:loginUserId,status:"accepted"}
+            ]
+        });
+        friendInfo.status=status;
+        console.log(friendInfo.status)
+        await friendInfo.save();
+        res.json({message:friendInfo});
+    }catch(err){
+        res.status(400).json({Error : "Friend is not found"})
+    }
+
+})
+
 module.exports=requestRouter;
